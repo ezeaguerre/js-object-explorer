@@ -32,7 +32,18 @@ body {
 	position: relative;
 	width: 100%;
 	height: calc( 100% - 15px - 10px - 1px );
-	overflow: scroll;
+	overflow: auto;
 	margin: 0;
 	padding: 0;
+}
+
+.resize-corner {
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	border: 1px solid black;
+	padding: 2px;
+	cursor: se-resize;
+	right: 0;
+	bottom: 0;
 }

@@ -1,37 +1,69 @@
+class XXXX {
+	constructor() {
+		this.canvasElements = [];
+		this.objects = [];
+	}
+
+	addObject( object ) {
+		const child = object.addToCanvas( this.element );
+		this.canvasElements.push( child );
+		this.objects.push( object );
+		return child;
+	}
+
+	ifElement( predicate, doBlock ) {
+		const element = this.canvasElements.find( predicate );
+		if ( element !== undefined )
+			doBlock( element );
+	}
+}
+
+const nullElement = {
+	isInsideOf: () => false
+};
+
+HTMLElement.prototype.getParent = function getParent() {
+	return this.parentElement || nullElement;
+}
+
+/**
+ * NOTE: An element is inside of itself.
+ */
+HTMLElement.prototype.isInsideOf = function isInsideOf( anElement ) {
+	return this === anElement || this.getParent().isInsideOf( anElement );
+}
+
 class ObjectDesktop {
 	constructor( element ) {
 		this.element = element;
 		this.currentChild = null;
-		this.children = [];
+		this.children = new XXXX();
 		this.offset = {};
 
 		document.addEventListener( 'mousemove', evt => this.onMouseMove( evt ) );
 		document.addEventListener( 'mouseup', evt => this.offset = null );
 		document.addEventListener( 'mousedown', evt => {
-			console.log( 'mouse down' );
-			const child = this.children.filter( c => c === evt.target );
-			if ( child.length === 1 ) {
-				this.offset = { x: evt.offsetX, y: evt.offsetY };
-				this.focusOn( child[ 0 ] );
-			}
+			this.children.ifElement(
+				e => evt.target.isInsideOf( e ),
+				e => {
+					this.offset = { x: evt.offsetX, y: evt.offsetY };
+					this.focusOn( e );
+				} );
 		} );
 	}
 
 	addObject( object ) {
-		const child = object.addToCanvas( this.element );
-		this.element.append( child );
-		this.children.push( child );
+		const element = this.children.addObject( object );
+		this.element.append( element );
 	}
 
 	focusOn( child ) {
 		if ( this.currentChild === child )
 			return;
 
-		if ( this.currentChild )
-			this.element.removeChild( this.currentChild );
-
-		this.currentChild = child;
+		this.element.removeChild( child );
 		this.element.append( child );
+		this.currentChild = child;
 	}
 
 	onMouseMove( evt ) {

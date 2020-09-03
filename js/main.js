@@ -20,4 +20,10 @@ window.onload = () => {
 
 	const od = new ObjectDescription( window );
 	window.desktop.addObject( od );
+	window.desktop.addObject( new ObjectDescription( { a: 'Hola', b: function() { console.log( "pepe" ) } } ) );
+
+	const w = new Window();
+	w.title = "Prueba 1";
+	w.content = "Soy el contenido :-)";
+	window.desktop.addObject( w );
 };

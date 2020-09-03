@@ -10,7 +10,7 @@ class ObjectDescription {
 	addToCanvas() {
 		const div = document.createElement( 'div' );
 
-		div.style.position = 'relative';
+		div.style.position = 'absolute';
 		div.style.width = '70px';
 		div.style.top = '50px';
 		div.style.left = '50px';

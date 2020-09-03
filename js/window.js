@@ -1,56 +1,103 @@
 class Window {
-	constructor( document ) {
-		this.dom = document;
-		this.x = this.y = 0;
-		this.w = this.h = 100;
-
+	constructor() {
+		this.w = 100;
+		this.h = 100;
 		this.div = null;
 		this.titleDiv = null;
 		this.contentDiv = null;
 
-		this.mouseDownListeners = [];
+		this._title = "Window";
+		this._content = null;
+		this.resizing = {
+			x: 0,
+			y: 0,
+			resizing: false
+		}
 	}
 
-	initialize() {
-		this.div = this.dom.createElement( 'div' );
+	addToCanvas() {
+		this.div = document.createElement( 'div' );
 		this.div.className = 'window';
 		this.div.style.top = '0px';
 		this.div.style.left = '0px';
 		this.div.style.width = '100px';
 		this.div.style.height = '100px';
 
-		this.titleDiv = this.dom.createElement( 'div' );
+		this.titleDiv = document.createElement( 'div' );
 		this.titleDiv.className = 'window-title';
-		this.titleDiv.innerHTML = 'Window';
+		this.titleDiv.innerHTML = this.title;
 
-		this.contentDiv = this.dom.createElement( 'div' );
+		this.contentDiv = document.createElement( 'div' );
 		this.contentDiv.className = 'window-content';
-		this.contentDiv.innerHTML = 'Contenido de la ventana :-) Es bastante largo, así que un poco de overflow: scroll nos viene bien para poder ver todo :-)';
+		this.contentDiv.innerHTML = this.content || '';
+
+		this.resizeCorner = document.createElement( 'div' );
+		this.resizeCorner.className = 'resize-corner';
 
 		this.div.append( this.titleDiv );
 		this.div.append( this.contentDiv );
+		this.div.append( this.resizeCorner );
 
-		this.dom.body.append( this.div );
+		/*
+		this.resizeCorner.addEventListener( 'mousedown', evt => {
+			evt.stopPropagation();
+			this.resizeStart( evt );
+		} );
+		this.resizeCorner.addEventListener( 'mousemove', evt => {
+			evt.stopPropagation();
+			this._resizeFromCoords( evt );
+		} );
+		this.resizeCorner.addEventListener( 'mouseup', evt => {
+			evt.stopPropagation();
+			this.resizeStop();
+		} );
+		 */
 
-		this.titleDiv.addEventListener( 'mousedown', evt => this.mouseDown( evt ) );
+		return this.div;
+	}
 
-		return this;
+	onMouseDown( point ) {
+		this.resizeStart( point );
+	}
+
+	onMouseUp( point ) {
+		this.resizeStop();
+	}
+
+	onMouseMove( point ) {
+		this._resizeFromCoords( point );
+	}
+
+	resizeStart( { x, y } ) {
+		this.resizing = {
+			x,
+			y,
+			resizing: true
+		};
+	}
+
+	resizeStop() {
+		this.resizing.resizing = false;
 	}
 
 	get title() {
-		return this.titleDiv.innerHTML;
+		return this._title;
 	}
 
 	set title( value ) {
-		this.titleDiv.innerHTML = value;
+		this._title = value;
+		if ( this.titleDiv )
+			this.titleDiv.innerHTML = value;
 	}
 
 	get content() {
-		return this.contentDiv.innerHTML;
+		return this._content;
 	}
 
 	set content( value ) {
-		this.contentDiv.innerHTML = value;
+		this._content = value;
+		if ( this.contentDiv )
+			this.contentDiv.innerHTML = value;
 	}
 
 	moveTo( x = 0, y = 0 ) {
@@ -61,34 +108,32 @@ class Window {
 		return this;
 	}
 
-	move( x = 0, y = 0 ) {
-		return this.moveTo( this.x + x, this.y + y );
+	_resizeFromCoords( { x, y } ) {
+		if ( !this.resizing.resizing )
+			return;
+		const w = x - this.resizing.x;
+		const h = y - this.resizing.y;
+
+
+		const newWidth = this.w + w;
+		const newHeight = this.h + h;
+
+		console.log( `Resizing: ${newWidth}x${newHeight}` );
+
+		if ( newWidth > 0 && newHeight > 0 )
+			this.resize( newWidth, newHeight );
+		else
+			this.resize( 100, 100 );
+
+		this.resizing.x = x;
+		this.resizing.y = y;
 	}
+
 
 	resize( width, height ) {
 		this.w = width;
 		this.height = height;
 		this.div.style.width = `${width}px`;
 		this.div.style.height = `${height}px`;
-	}
-
-	mouseDown( evt ) {
-		const difference = {
-			x: evt.offsetX,
-			y: evt.offsetY
-		};
-
-		this.mouseDownListeners.forEach( l => l( this, difference ) );
-
-		this.bringToFront();
-	}
-
-	addMouseDownEventListener( listener ) {
-		this.mouseDownListeners.push( listener );
-	}
-
-	bringToFront() {
-		document.body.removeChild( this.div );
-		document.body.appendChild( this.div );
 	}
 }
