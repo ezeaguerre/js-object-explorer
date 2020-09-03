@@ -17,13 +17,5 @@
 
 window.onload = () => {
 	window.desktop = new ObjectDesktop( document.body );
-
-	const od = new ObjectDescription( window );
-	window.desktop.addObject( od );
-	window.desktop.addObject( new ObjectDescription( { a: 'Hola', b: function() { console.log( "pepe" ) } } ) );
-
-	const w = new Window();
-	w.title = "Prueba 1";
-	w.content = "<span style=\"color: red\">Hola</span>";
-	window.desktop.addObject( w );
+	window.desktop.addObject( window );
 };

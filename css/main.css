@@ -10,6 +10,8 @@ body {
 	border: 1px solid black;
 	box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
 	background-color: white;
+	display: flex;
+	flex-direction: column;
 }
 
 .window-title {
@@ -35,15 +37,16 @@ body {
 	overflow: auto;
 	margin: 0;
 	padding: 0;
+	display: flex;
+	flex-direction: column;
 }
 
 .resize-corner {
-	position: absolute;
-	width: 10px;
-	height: 10px;
+	position: relative;
+	width: 15px;
+	height: 15px;
 	border: 1px solid black;
-	padding: 2px;
+	margin: 2px;
 	cursor: se-resize;
-	right: 0;
-	bottom: 0;
+	align-self: end;
 }

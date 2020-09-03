@@ -49,8 +49,16 @@ class ObjectDesktop {
 		);
 	}
 
+	addWindow( window ) {
+		return this.children.addObjectToDesktop( window, this );
+	}
+
 	addObject( object ) {
-		return this.children.addObjectToDesktop( object, this );
+		const window = new Window();
+		window.title = 'An Object';
+		window.content = new ObjectDescription( object );
+
+		this.addWindow( window );
 	}
 
 	focusOn( child ) {

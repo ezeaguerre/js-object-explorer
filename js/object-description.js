@@ -8,32 +8,17 @@ class ObjectDescription {
 	}
 
 	addToCanvas() {
-		const div = document.createElement( 'div' );
-
-		div.style.position = 'absolute';
-		div.style.width = '70px';
-		div.style.top = '50px';
-		div.style.left = '50px';
-		div.style.margin = '0';
-		div.style.paddingTop = '20px';
-		div.style.backgroundColor = 'blue';
-		div.style.border = '1px solid black';
-
 		const list = document.createElement( 'select' );
-		list.style.height = '100px';
-		list.style.width = '69px';
+		list.style.height = '100%';
 		list.multiple = true;
 
-		this.div = div;
 		this.list = list;
 
 		const names = Object.getOwnPropertyNames( this.o );
 		for( let n of names )
 			this.addOption( n );
 
-		div.append( list );
-
-		return div;
+		return list;
 	}
 
 	addOption( label ) {

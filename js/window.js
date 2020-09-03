@@ -9,8 +9,8 @@ class Window {
 		this.x = 0;
 		this.y = 0;
 
-		this._title = "Window";
-		this._content = null;
+		this._title = 'Window';
+		this._content = '';
 		this.resizing = {
 			x: 0,
 			y: 0,
@@ -42,6 +42,8 @@ class Window {
 			} )
 		);
 
+		this._updateContent();
+
 		return el;
 	}
 
@@ -61,7 +63,6 @@ class Window {
 
 		this.contentDiv = document.createElement( 'div' );
 		this.contentDiv.className = 'window-content';
-		this.contentDiv.innerHTML = this.content || '';
 
 		this.resizeCorner = document.createElement( 'div' );
 		this.resizeCorner.className = 'resize-corner';
@@ -116,9 +117,31 @@ class Window {
 	}
 
 	set content( value ) {
-		this._content = value;
-		if ( this.contentDiv )
-			this.contentDiv.innerHTML = value;
+		this._content = value || '';
+		this._updateContent();
+	}
+
+	_updateContent() {
+		const { content, contentDiv } = this;
+
+		if ( !contentDiv )
+			return;
+
+		if ( typeof content !== 'object' ) {
+			contentDiv.innerHTML = content.toString();
+			return;
+		}
+
+		if ( content instanceof Element ) {
+			if ( contentDiv.hasChildNodes() )
+				contentDiv.replaceChild( content, contentDiv.firstChild );
+			else
+				contentDiv.append( content );
+			return;
+		}
+
+		const element = content.addToCanvas( contentDiv );
+		contentDiv.append( element );
 	}
 
 	moveTo( x = 0, y = 0 ) {
