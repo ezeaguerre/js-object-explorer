@@ -38,24 +38,27 @@ class Window {
 		this.div.append( this.contentDiv );
 		this.div.append( this.resizeCorner );
 
-		/*
 		this.resizeCorner.addEventListener( 'mousedown', evt => {
 			evt.stopPropagation();
 			this.resizeStart( evt );
 		} );
-		this.resizeCorner.addEventListener( 'mousemove', evt => {
-			evt.stopPropagation();
-			this._resizeFromCoords( evt );
+		document.addEventListener( 'mousemove', evt => {
+			if ( this.resizing.resizing ) {
+				evt.stopPropagation();
+				this._resizeFromCoords( evt );
+			}
 		} );
-		this.resizeCorner.addEventListener( 'mouseup', evt => {
-			evt.stopPropagation();
-			this.resizeStop();
+		document.addEventListener( 'mouseup', evt => {
+			if ( this.resizing.resizing ) {
+				evt.stopPropagation();
+				this.resizeStop();
+			}
 		} );
-		 */
 
 		return this.div;
 	}
 
+	/*
 	onMouseDown( point ) {
 		this.resizeStart( point );
 	}
@@ -67,11 +70,14 @@ class Window {
 	onMouseMove( point ) {
 		this._resizeFromCoords( point );
 	}
+	 */
 
 	resizeStart( { x, y } ) {
 		this.resizing = {
 			x,
 			y,
+			originalWidth: this.w,
+			originalHeight: this.h,
 			resizing: true
 		};
 	}
@@ -111,28 +117,22 @@ class Window {
 	_resizeFromCoords( { x, y } ) {
 		if ( !this.resizing.resizing )
 			return;
+
 		const w = x - this.resizing.x;
 		const h = y - this.resizing.y;
 
-
-		const newWidth = this.w + w;
-		const newHeight = this.h + h;
-
-		console.log( `Resizing: ${newWidth}x${newHeight}` );
+		const newWidth = this.resizing.originalWidth + w;
+		const newHeight = this.resizing.originalHeight + h;
 
 		if ( newWidth > 0 && newHeight > 0 )
 			this.resize( newWidth, newHeight );
 		else
 			this.resize( 100, 100 );
-
-		this.resizing.x = x;
-		this.resizing.y = y;
 	}
-
 
 	resize( width, height ) {
 		this.w = width;
-		this.height = height;
+		this.h = height;
 		this.div.style.width = `${width}px`;
 		this.div.style.height = `${height}px`;
 	}

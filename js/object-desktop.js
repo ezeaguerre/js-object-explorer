@@ -43,6 +43,7 @@ class ObjectDesktop {
 		document.addEventListener( 'mousemove', evt => this.onMouseMove( evt ) );
 		document.addEventListener( 'mouseup', evt => this.offset = null );
 		document.addEventListener( 'mousedown', evt => {
+			console.log( "Mouse Down - Bubble Up" );
 			this.children.ifElement(
 				e => evt.target.isInsideOf( e ),
 				e => {
