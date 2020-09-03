@@ -5,6 +5,9 @@ class Window {
 		this.div = null;
 		this.titleDiv = null;
 		this.contentDiv = null;
+		this.moving = false;
+		this.x = 0;
+		this.y = 0;
 
 		this._title = "Window";
 		this._content = null;
@@ -13,9 +16,38 @@ class Window {
 			y: 0,
 			resizing: false
 		}
+
+		this.subscriptions = new Subscriptions();
+	}
+
+	addToDesktop( desktop ) {
+		const el = this.addToCanvas();
+
+		this.subscriptions.addSubscriptions(
+			desktop.listenTo( 'mousemove', evt => {
+				if ( this.resizing.resizing ) {
+					evt.stopPropagation();
+					this._resizeFromCoords( evt );
+				} else if ( this.moving ) {
+					evt.stopPropagation();
+					this.move( evt );
+				}
+			} ),
+			desktop.listenTo( 'mouseup', evt => {
+				if ( this.moving || this.resizing.resizing ) {
+					evt.stopPropagation();
+					this.resizeStop();
+					this.stopMoving();
+				}
+			} )
+		);
+
+		return el;
 	}
 
 	addToCanvas() {
+		this.x = this.y = 0;
+
 		this.div = document.createElement( 'div' );
 		this.div.className = 'window';
 		this.div.style.top = '0px';
@@ -42,35 +74,18 @@ class Window {
 			evt.stopPropagation();
 			this.resizeStart( evt );
 		} );
-		document.addEventListener( 'mousemove', evt => {
-			if ( this.resizing.resizing ) {
-				evt.stopPropagation();
-				this._resizeFromCoords( evt );
-			}
-		} );
-		document.addEventListener( 'mouseup', evt => {
-			if ( this.resizing.resizing ) {
-				evt.stopPropagation();
-				this.resizeStop();
-			}
+
+		this.titleDiv.addEventListener( 'mousedown', evt => {
+			evt.stopPropagation();
+			this.startMoving( evt );
 		} );
 
 		return this.div;
 	}
 
-	/*
-	onMouseDown( point ) {
-		this.resizeStart( point );
+	acceptFocus() {
+		return true;
 	}
-
-	onMouseUp( point ) {
-		this.resizeStop();
-	}
-
-	onMouseMove( point ) {
-		this._resizeFromCoords( point );
-	}
-	 */
 
 	resizeStart( { x, y } ) {
 		this.resizing = {
@@ -135,5 +150,25 @@ class Window {
 		this.h = height;
 		this.div.style.width = `${width}px`;
 		this.div.style.height = `${height}px`;
+	}
+
+	startMoving( { x, y })  {
+		this.moving = true;
+		this.movingOffset = {
+			x: x - this.x,
+			y: y - this.y
+		};
+	}
+
+	stopMoving() {
+		this.moving = false;
+	}
+
+	move( { x, y } ) {
+		if ( this.moving ) {
+			const newXPosition = x - this.movingOffset.x;
+			const newYPosition = y - this.movingOffset.y;
+			this.moveTo( newXPosition, newYPosition );
+		}
 	}
 }

@@ -42,3 +42,5 @@ class ObjectDescription {
 		this.list.add( opt );
 	}
 }
+
+DesktopChildMixin.applyToClass( ObjectDescription );

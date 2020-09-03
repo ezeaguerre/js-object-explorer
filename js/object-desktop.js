@@ -1,20 +1,21 @@
-class XXXX {
+class DesktopChildren {
 	constructor() {
-		this.canvasElements = [];
-		this.objects = [];
+		this.children = [];
 	}
 
-	addObject( object ) {
-		const child = object.addToCanvas( this.element );
-		this.canvasElements.push( child );
-		this.objects.push( object );
-		return child;
+	addObjectToDesktop( object, desktop ) {
+		const element = object.addToDesktop( desktop );
+		this.children.push( {
+			element,
+			object
+		} );
+		desktop.append( element );
 	}
 
-	ifElement( predicate, doBlock ) {
-		const element = this.canvasElements.find( predicate );
-		if ( element !== undefined )
-			doBlock( element );
+	ifChild( predicate, doBlock ) {
+		const child = this.children.find( predicate );
+		if ( child )
+			doBlock( child );
 	}
 }
 
@@ -35,44 +36,42 @@ HTMLElement.prototype.isInsideOf = function isInsideOf( anElement ) {
 
 class ObjectDesktop {
 	constructor( element ) {
-		this.element = element;
+		this.canvas = element;
 		this.currentChild = null;
-		this.children = new XXXX();
+		this.children = new DesktopChildren();
 		this.offset = {};
 
-		document.addEventListener( 'mousemove', evt => this.onMouseMove( evt ) );
-		document.addEventListener( 'mouseup', evt => this.offset = null );
-		document.addEventListener( 'mousedown', evt => {
-			console.log( "Mouse Down - Bubble Up" );
-			this.children.ifElement(
-				e => evt.target.isInsideOf( e ),
-				e => {
-					this.offset = { x: evt.offsetX, y: evt.offsetY };
-					this.focusOn( e );
-				} );
-		} );
+		document.addEventListener( 'mousedown', evt =>
+			this.children.ifChild(
+				c => evt.target.isInsideOf( c.element ),
+				c => this.focusOn( c )
+			)
+		);
 	}
 
 	addObject( object ) {
-		const element = this.children.addObject( object );
-		this.element.append( element );
+		return this.children.addObjectToDesktop( object, this );
 	}
 
 	focusOn( child ) {
 		if ( this.currentChild === child )
-			return;
+			return true;
 
-		this.element.removeChild( child );
-		this.element.append( child );
+		if ( !child.object.acceptFocus() )
+			return false;
+
+		this.canvas.removeChild( child.element );
+		this.canvas.append( child.element );
 		this.currentChild = child;
+		return true;
 	}
 
-	onMouseMove( evt ) {
-		if ( this.offset && this.currentChild ) {
-			const newXPosition = evt.x - this.offset.x;
-			const newYPosition = evt.y - this.offset.y;
-			this.currentChild.style.left = `${newXPosition}px`;
-			this.currentChild.style.top = `${newYPosition}px`;
-		}
+	listenTo( eventName, handler, options ) {
+		return EventSubscription.subscribeOn( document, eventName, handler, options );
+	}
+
+	append( element ) {
+		this.canvas.append( element );
+		return this;
 	}
 }

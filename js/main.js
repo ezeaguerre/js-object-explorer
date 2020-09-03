@@ -24,6 +24,6 @@ window.onload = () => {
 
 	const w = new Window();
 	w.title = "Prueba 1";
-	w.content = "Soy el contenido :-)";
+	w.content = "<span style=\"color: red\">Hola</span>";
 	window.desktop.addObject( w );
 };
