@@ -53,10 +53,34 @@ class ObjectDesktop {
 		return this.children.addObjectToDesktop( window, this );
 	}
 
+	titleOf( aName ) {
+		switch( aName[ 0 ].toLowerCase() ) {
+			case 'a':
+			case 'e':
+			case 'i':
+			case 'o':
+			case 'u':
+				return `an ${aName}`;
+			default:
+				return `a ${aName}`;
+		}
+	}
+
 	addObject( object ) {
 		const window = new Window();
 		window.title = 'An Object';
-		window.content = new ObjectDescription( object );
+
+		const proto = Object.getPrototypeOf( object );
+		if ( proto.constructor && proto.constructor.name )
+			window.title = this.titleOf( proto.constructor.name );
+		else if ( object.constructor && object.constructor.name )
+			window.title = this.titleOf( object.constructor.name );
+
+		const content = new Div();
+		content.append( new ObjectDescription( object ) );
+		content.append( new Evaluator( object ) );
+
+		window.content = content;
 
 		this.addWindow( window );
 	}
