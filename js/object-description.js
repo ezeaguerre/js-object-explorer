@@ -16,7 +16,7 @@ class ObjectDescription {
 
 		const names = Object.getOwnPropertyNames( this.o );
 		for( let n of names )
-			this.addOption( n );
+			this.addOption( `${n}: ${this.o[n]}` );
 
 		return list;
 	}
