@@ -17,6 +17,10 @@ class DesktopChildren {
 		if ( child )
 			doBlock( child );
 	}
+
+	hasObject( object ) {
+		this.children.some( c => c.sameAs( object ) );
+	}
 }
 
 const nullElement = {
@@ -40,6 +44,7 @@ class ObjectDesktop {
 		this.currentChild = null;
 		this.children = new DesktopChildren();
 		this.offset = {};
+		this.allObjects = [];
 
 		document.addEventListener( 'mousedown', evt =>
 			this.children.ifChild(
@@ -67,6 +72,13 @@ class ObjectDesktop {
 	}
 
 	addObject( object ) {
+		for( let o of this.allObjects ) {
+			if ( o.object === object ) {
+				o.window.grab();
+				return;
+			}
+		}
+
 		const window = new Window();
 		window.title = 'An Object';
 
@@ -83,6 +95,10 @@ class ObjectDesktop {
 		window.content = content;
 
 		this.addWindow( window );
+
+		this.allObjects.push( {
+			window, object
+		} );
 	}
 
 	focusOn( child ) {

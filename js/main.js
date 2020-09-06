@@ -17,5 +17,5 @@
 
 window.onload = () => {
 	window.desktop = new ObjectDesktop( document.body );
-	window.desktop.addObject( window );
+	// window.desktop.addObject( window );
 };

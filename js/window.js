@@ -194,4 +194,8 @@ class Window {
 			this.moveTo( newXPosition, newYPosition );
 		}
 	}
+
+	grab() {
+		this.startMoving( { x: this.x, y: this.y } );
+	}
 }
