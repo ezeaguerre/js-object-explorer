@@ -13,12 +13,25 @@ class ObjectDescription {
 		list.multiple = true;
 
 		this.list = list;
+		this.addProperties();
 
-		const names = Object.getOwnPropertyNames( this.o );
-		for( let n of names )
-			this.addOption( `${n}: ${this.o[n]}` );
+		setInterval(
+			() => this.updateObject(),
+			1000
+		);
 
 		return list;
+	}
+
+	addProperties() {
+		const names = Object.getOwnPropertyNames( this.o );
+		for ( let n of names )
+			this.addOption( `${ n }: ${ this.o[ n ] }` );
+	}
+
+	updateObject() {
+		this.list.innerHTML = '';
+		this.addProperties();
 	}
 
 	addOption( label ) {

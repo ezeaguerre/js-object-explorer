@@ -33,7 +33,15 @@ class Evaluator {
 	}
 
 	evaluate( text ) {
-		return eval( text );
+		let parts = text.split( ';' );
+		parts = parts.filter( p => p.trim().length !== 0 );
+		if ( parts.last.match( /^[\s]*return/ ) == null )
+			parts.last = 'return ' + parts.last;
+
+		let textToEvaluate = parts.join( ";" );
+		textToEvaluate = `function doIt() {\n${textToEvaluate}\n}\ndoIt.call(this);`;
+
+		return eval( textToEvaluate );
 	}
 
 	doIt() {
