@@ -108,7 +108,6 @@ class Window extends Widget {
 		} );
 
 		this.titleDiv.canvas.addEventListener( 'mousedown', evt => {
-			evt.stopPropagation();
 			this.startMoving( evt );
 		} );
 

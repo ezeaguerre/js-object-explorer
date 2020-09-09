@@ -23,11 +23,30 @@ class Evaluator extends Widget {
 		getItButton.innerText = 'Get It!';
 		getItButton.addEventListener( 'click', () => this.getIt() );
 
+		let printItButton = document.createElement( 'button' );
+		printItButton.innerText = 'Print It!';
+		printItButton.addEventListener( 'click', () => this.printIt() );
+
 		buttonsFrame.appendChild( getItButton );
 		buttonsFrame.appendChild( doItButton );
+		buttonsFrame.appendChild( printItButton );
 
 		mainFrame.appendChild( this.textArea );
 		mainFrame.appendChild( buttonsFrame );
+
+
+		this.textArea.addEventListener( 'keydown', e => {
+			if ( e.ctrlKey ) {
+				switch( e.key ) {
+					case 'd': this.doIt(); break;
+					case 'g': this.getIt(); break;
+					case 'p': this.printIt(); break;
+					default: return;
+				}
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		} );
 	}
 
 	evaluate( text ) {
@@ -50,5 +69,12 @@ class Evaluator extends Widget {
 	getIt() {
 		const value = this.doIt();
 		this.rootWidget.addObject( value );
+		this.rootWidget.addObject( value );
+	}
+
+	printIt() {
+		const previousLength = this.textArea.value.length;
+		this.textArea.value = this.textArea.value + ' => ' + Object.printString( this.doIt() );
+		this.textArea.selectionStart = previousLength;
 	}
 }

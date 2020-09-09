@@ -151,3 +151,36 @@ Object.equals = function equals( obj1, obj2 ) {
 String.prototype.articulize = function articulize() {
 	return this.first.isVowel ? `an ${this}` : `a ${this}`;
 }
+
+Object.prototype.printString = function printString() { return this.toString(); }
+String.prototype.printString = function printString() { return "'" + this.toString() + "'"; }
+
+Object.printString = function printString( anObject ) {
+	if ( anObject === null ) return 'null';
+	if ( anObject === undefined ) return 'undefined';
+
+	try {
+		return anObject.printString();
+	} catch( err ) {
+		try {
+			return Object.prototype.toString.call( anObject );
+		} catch ( err ) {
+			return 'an Object';
+		}
+	}
+};
+
+Object.describeWithWidget = function describeWithWidget( anObject ) {
+	if ( anObject === null )
+		return new TextualDescription( 'null' );
+
+	if ( anObject === undefined )
+		return new TextualDescription( undefined );
+
+	if ( anObject instanceof Boolean ||
+		anObject instanceof Number ||
+		anObject instanceof Date )
+		return new TextualDescription( anObject );
+
+	return new ObjectDescription( anObject );
+};
