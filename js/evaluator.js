@@ -51,7 +51,7 @@ class Evaluator extends Widget {
 
 	evaluate( text ) {
 		let parts = text.split( ';' );
-		parts = parts.filter( p => p.trim().length !== 0 );
+		parts = parts.map( p => p.trim() ).filter( p => p.length !== 0 );
 		if ( parts.last.match( /^[\s]*return/ ) == null )
 			parts.last = 'return ' + parts.last;
 
