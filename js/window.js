@@ -1,3 +1,40 @@
+class WindowTitle extends Widget {
+	constructor( title ) {
+		super();
+		this._title = title || 'an Object';
+		this.onClose = () => {};
+		this.initializeCanvas();
+	}
+
+	get title() {
+		return this._title;
+	}
+
+	set title( aString ) {
+		this._title = aString;
+		this.titleDiv.innerHTML = aString;
+	}
+
+	initializeCanvas() {
+		const { canvas } = this;
+		canvas.className = 'window-title';
+
+		const title = new Div();
+		title.innerHTML = this.title;
+
+		const close = new Div();
+		close.className = 'close-box';
+		close.innerHTML = 'X';
+
+		this.addChild( title );
+		this.addChild( close );
+
+		this.titleDiv = title;
+
+		close.addEventListener( 'click', () => this.onClose() );
+	}
+}
+
 class Window extends Widget {
 	constructor() {
 		super();
@@ -5,14 +42,13 @@ class Window extends Widget {
 		this.w = 100;
 		this.h = 100;
 		this.div = this.canvas;
-		this.titleDiv = new Div();
+		this.titleDiv = new WindowTitle();
 		this.contentDiv = new Div();
 		this.resizeCorner = new Div();
 		this.moving = false;
 		this.x = 0;
 		this.y = 0;
 
-		this._title = 'Window';
 		this.resizing = {
 			x: 0,
 			y: 0,
@@ -20,6 +56,8 @@ class Window extends Widget {
 		}
 
 		this.subscriptions = new Subscriptions();
+
+		this.titleDiv.onClose = () => this.removeFromParent();
 	}
 
 	addedToParent() {
@@ -55,9 +93,6 @@ class Window extends Widget {
 		this.canvas.style.left = '0px';
 		this.canvas.style.width = '100px';
 		this.canvas.style.height = '100px';
-
-		this.titleDiv.className = 'window-title';
-		this.titleDiv.canvas.innerHTML = this.title;
 
 		this.contentDiv.className = 'window-content';
 
@@ -100,13 +135,11 @@ class Window extends Widget {
 	}
 
 	get title() {
-		return this._title;
+		return this.titleDiv.title;
 	}
 
 	set title( value ) {
-		this._title = value;
-		if ( this.titleDiv )
-			this.titleDiv.innerHTML = value;
+		this.titleDiv.title = value;
 	}
 
 	moveTo( x = 0, y = 0 ) {
