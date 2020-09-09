@@ -1,35 +1,3 @@
-class DesktopChildren {
-	constructor() {
-		this.children = [];
-	}
-
-	addObjectToDesktop( object, desktop ) {
-		const element = object.addToDesktop( desktop );
-		this.children.push( {
-			element,
-			object
-		} );
-		desktop.append( element );
-	}
-
-	ifChild( predicate, doBlock ) {
-		const child = this.children.find( predicate );
-		if ( child )
-			doBlock( child );
-	}
-
-	hasObject( object ) {
-		this.children.some( c => c.sameAs( object ) );
-	}
-}
-
-const nullElement = {
-	isInsideOf: () => false
-};
-
-HTMLElement.prototype.getParent = function getParent() {
-	return this.parentElement || nullElement;
-}
 
 /**
  * NOTE: An element is inside of itself.
@@ -38,37 +6,32 @@ HTMLElement.prototype.isInsideOf = function isInsideOf( anElement ) {
 	return this === anElement || this.getParent().isInsideOf( anElement );
 }
 
-class ObjectDesktop {
+class ObjectDesktop extends Widget {
 	constructor( element ) {
+		super();
 		this.canvas = element;
 		this.currentChild = null;
-		this.children = new DesktopChildren();
-		this.offset = {};
-		this.allObjects = [];
+		this.allObjects = []; // NOTA: Se podría cambiar usando forEachDescendant
 
-		document.addEventListener( 'mousedown', evt =>
-			this.children.ifChild(
-				c => evt.target.isInsideOf( c.element ),
-				c => this.focusOn( c )
-			)
+		document.addEventListener( 'mousedown', evt => {
+			const child = this.findChild( c => evt.target.isInsideOf( c.canvas ) )
+			if ( child )
+				this.focusOn( child );
+		} );
+
+		setInterval(
+			() => this.forEachChild( c => c.worldStep( 1000 ) ),
+			1000
 		);
 	}
 
-	addWindow( window ) {
-		return this.children.addObjectToDesktop( window, this );
+	removeChild( child ) {
+		this.allObjects.remove( ( { window } ) => window === child );
+		return super.removeChild( child );
 	}
 
-	titleOf( aName ) {
-		switch( aName[ 0 ].toLowerCase() ) {
-			case 'a':
-			case 'e':
-			case 'i':
-			case 'o':
-			case 'u':
-				return `an ${aName}`;
-			default:
-				return `a ${aName}`;
-		}
+	addWindow( window ) {
+		this.addChild( window );
 	}
 
 	addObject( object ) {
@@ -84,15 +47,15 @@ class ObjectDesktop {
 
 		const proto = Object.getPrototypeOf( object );
 		if ( proto.constructor && proto.constructor.name )
-			window.title = this.titleOf( proto.constructor.name );
+			window.title = proto.constructor.name.articulize();
 		else if ( object.constructor && object.constructor.name )
-			window.title = this.titleOf( object.constructor.name );
+			window.title = object.constructor.name.articulize();
 
 		const content = new Div();
-		content.append( new ObjectDescription( object ) );
-		content.append( new Evaluator( object ) );
+		content.addChild( new ObjectDescription( object ) );
+		content.addChild( new Evaluator( object ) );
 
-		window.content = content;
+		window.setContent( content );
 
 		this.addWindow( window );
 
@@ -105,11 +68,11 @@ class ObjectDesktop {
 		if ( this.currentChild === child )
 			return true;
 
-		if ( !child.object.acceptFocus() )
+		if ( !child.acceptFocus() )
 			return false;
 
-		this.canvas.removeChild( child.element );
-		this.canvas.append( child.element );
+		this.canvas.removeChild( child.canvas );
+		this.canvas.append( child.canvas );
 		this.currentChild = child;
 		return true;
 	}

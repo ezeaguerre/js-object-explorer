@@ -1,16 +1,18 @@
-class Window {
+class Window extends Widget {
 	constructor() {
+		super();
+
 		this.w = 100;
 		this.h = 100;
-		this.div = null;
-		this.titleDiv = null;
-		this.contentDiv = null;
+		this.div = this.canvas;
+		this.titleDiv = new Div();
+		this.contentDiv = new Div();
+		this.resizeCorner = new Div();
 		this.moving = false;
 		this.x = 0;
 		this.y = 0;
 
 		this._title = 'Window';
-		this._content = '';
 		this.resizing = {
 			x: 0,
 			y: 0,
@@ -20,11 +22,11 @@ class Window {
 		this.subscriptions = new Subscriptions();
 	}
 
-	addToDesktop( desktop ) {
-		const el = this.addToCanvas();
+	addedToParent() {
+		const el = this._addToCanvas( this.parent.canvas );
 
 		this.subscriptions.addSubscriptions(
-			desktop.listenTo( 'mousemove', evt => {
+			this.rootWidget.listenTo( 'mousemove', evt => {
 				if ( this.resizing.resizing ) {
 					evt.stopPropagation();
 					this._resizeFromCoords( evt );
@@ -33,7 +35,7 @@ class Window {
 					this.move( evt );
 				}
 			} ),
-			desktop.listenTo( 'mouseup', evt => {
+			this.rootWidget.listenTo( 'mouseup', evt => {
 				if ( this.moving || this.resizing.resizing ) {
 					evt.stopPropagation();
 					this.resizeStop();
@@ -42,50 +44,45 @@ class Window {
 			} )
 		);
 
-		this._updateContent();
-
 		return el;
 	}
 
-	addToCanvas() {
+	_addToCanvas( canvas ) {
 		this.x = this.y = 0;
 
-		this.div = document.createElement( 'div' );
-		this.div.className = 'window';
-		this.div.style.top = '0px';
-		this.div.style.left = '0px';
-		this.div.style.width = '100px';
-		this.div.style.height = '100px';
+		this.canvas.className = 'window';
+		this.canvas.style.top = '0px';
+		this.canvas.style.left = '0px';
+		this.canvas.style.width = '100px';
+		this.canvas.style.height = '100px';
 
-		this.titleDiv = document.createElement( 'div' );
 		this.titleDiv.className = 'window-title';
-		this.titleDiv.innerHTML = this.title;
+		this.titleDiv.canvas.innerHTML = this.title;
 
-		this.contentDiv = document.createElement( 'div' );
 		this.contentDiv.className = 'window-content';
 
-		this.resizeCorner = document.createElement( 'div' );
 		this.resizeCorner.className = 'resize-corner';
 
-		this.div.append( this.titleDiv );
-		this.div.append( this.contentDiv );
-		this.div.append( this.resizeCorner );
+		this.addChild( this.titleDiv );
+		this.addChild( this.contentDiv );
+		this.addChild( this.resizeCorner );
 
-		this.resizeCorner.addEventListener( 'mousedown', evt => {
+		this.resizeCorner.canvas.addEventListener( 'mousedown', evt => {
 			evt.stopPropagation();
 			this.resizeStart( evt );
 		} );
 
-		this.titleDiv.addEventListener( 'mousedown', evt => {
+		this.titleDiv.canvas.addEventListener( 'mousedown', evt => {
 			evt.stopPropagation();
 			this.startMoving( evt );
 		} );
 
-		return this.div;
+		canvas.append( this.div );
 	}
 
-	acceptFocus() {
-		return true;
+	setContent( content ) {
+		this.contentDiv.removeChildren();
+		this.contentDiv.addChild( content );
 	}
 
 	resizeStart( { x, y } ) {
@@ -110,38 +107,6 @@ class Window {
 		this._title = value;
 		if ( this.titleDiv )
 			this.titleDiv.innerHTML = value;
-	}
-
-	get content() {
-		return this._content;
-	}
-
-	set content( value ) {
-		this._content = value || '';
-		this._updateContent();
-	}
-
-	_updateContent() {
-		const { content, contentDiv } = this;
-
-		if ( !contentDiv )
-			return;
-
-		if ( typeof content !== 'object' ) {
-			contentDiv.innerHTML = content.toString();
-			return;
-		}
-
-		if ( content instanceof Element ) {
-			if ( contentDiv.hasChildNodes() )
-				contentDiv.replaceChild( content, contentDiv.firstChild );
-			else
-				contentDiv.append( content );
-			return;
-		}
-
-		const element = content.addToCanvas( contentDiv );
-		contentDiv.append( element );
 	}
 
 	moveTo( x = 0, y = 0 ) {

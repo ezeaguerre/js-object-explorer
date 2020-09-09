@@ -1,11 +1,13 @@
-class Evaluator {
+class Evaluator extends Widget {
 	constructor( context ) {
-		this.textArea = null;
+		super();
+		this.textArea = document.createElement( 'textarea' );
 		this.context = context;
+		this.setupCanvas();
 	}
 
-	addToCanvas( canvas ) {
-		let mainFrame = document.createElement( 'div' );
+	setupCanvas() {
+		let mainFrame = this.canvas;
 		mainFrame.style.display = 'flex';
 		mainFrame.style.flexDirection = 'column';
 
@@ -24,12 +26,8 @@ class Evaluator {
 		buttonsFrame.appendChild( getItButton );
 		buttonsFrame.appendChild( doItButton );
 
-		this.textArea = document.createElement( 'textarea' );
-
 		mainFrame.appendChild( this.textArea );
 		mainFrame.appendChild( buttonsFrame );
-
-		return mainFrame;
 	}
 
 	evaluate( text ) {
@@ -51,6 +49,6 @@ class Evaluator {
 
 	getIt() {
 		const value = this.doIt();
-		window.desktop.addObject( value );
+		this.rootWidget.addObject( value );
 	}
 }

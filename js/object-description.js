@@ -1,35 +1,32 @@
-class ObjectDescription {
-	constructor( object ) {
-		this.x = 0;
-		this.y = 0;
-		this.w = 50;
-		this.h = 100;
-		this.o = object;
+class ObjectDescription extends Widget {
+	constructor( anObject ) {
+		super();
+		this.object = anObject;
+		this.oldObject = Object.clone( anObject );
+		this.setupCanvas();
 	}
 
-	addToCanvas() {
-		const list = document.createElement( 'select' );
-		list.style.height = '100%';
-		list.multiple = true;
-
-		this.list = list;
+	setupCanvas() {
+		this.canvas = document.createElement( 'select' );
+		this.canvas.height = '100%';
+		this.canvas.multiple = true;
 		this.addProperties();
+	}
 
-		setInterval(
-			() => this.updateObject(),
-			1000
-		);
-
-		return list;
+	get list() {
+		return this.canvas;
 	}
 
 	addProperties() {
-		const names = Object.getOwnPropertyNames( this.o );
+		const names = Object.getOwnPropertyNames( this.object );
 		for ( let n of names )
-			this.addOption( `${ n }: ${ this.o[ n ] }` );
+			this.addOption( `${ n }: ${ this.object[ n ] }` );
 	}
 
-	updateObject() {
+	worldStep() {
+		if ( Object.equals( this.oldObject, this.object ) )
+			return;
+		this.oldObject = Object.clone( this.object );
 		this.list.innerHTML = '';
 		this.addProperties();
 	}
@@ -40,5 +37,3 @@ class ObjectDescription {
 		this.list.add( opt );
 	}
 }
-
-DesktopChildMixin.applyToClass( ObjectDescription );

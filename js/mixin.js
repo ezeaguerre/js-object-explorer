@@ -15,10 +15,15 @@ function applyToClass( klass ) {
 	return this.applyTo( klass.prototype );
 }
 
+function applyToMixin( mixin ) {
+	return this.applyTo( mixin.mixinData );
+}
+
 function mixin( mixinData ) {
 	return {
 		mixinData,
 		applyTo,
-		applyToClass
+		applyToClass,
+		applyToMixin
 	};
 }
