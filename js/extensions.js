@@ -32,8 +32,11 @@ Object.defineProperty( Array.prototype, 'last', {
 	}
 } );
 
-Array.prototype.remove = function remove( element ) {
-	const index = this.findIndex( e => e === element );
+Array.prototype.remove = function remove( elementOrPredicate ) {
+	if ( typeof elementOrPredicate === 'function' )
+		index =this.findIndex( elementOrPredicate );
+	else
+		index = this.findIndex( e => e === elementOrPredicate );
 
 	if ( index >= 0 ) {
 		this.splice( index, 1 );

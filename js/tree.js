@@ -51,7 +51,9 @@ const TreeMixin = mixin( {
 	},
 
 	removeChildren() {
-		this.forEachChild( c => this.removeChild( c ) );
+		while ( this.children.length > 0 )
+			this.firstChild.removeFromParent();
+		return this;
 	},
 
 	removeFromParent() {
